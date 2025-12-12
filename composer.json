@@ -15,12 +15,12 @@
     "authors": [
         {
             "name": "Shayd-R",
-            "email": "shayd@example.com"
+            "email": "shaydruano@gmail.com"
         }
     ],
     "require": {
         "php": "^8.1",
-        "filament/filament": "^3.0",
+        "filament/filament": "^3.0|^4.0",
         "illuminate/support": "^10.0|^11.0",
         "openspout/openspout": "^4.0"
     },
