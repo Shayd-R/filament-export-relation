@@ -1,6 +1,6 @@
 # Filament Smart Export
 
-Automatic export action for Filament that discovers your model structure and relationships.
+Automatic export action for Filament v4 that discovers your model structure and relationships.
 
 ## Features
 
@@ -18,6 +18,8 @@ composer require shayd-r/filament-smart-export
 
 ## Usage
 
+### Bulk Action (for selected records)
+
 ```php
 use ShaydR\FilamentSmartExport\Actions\SmartExportBulkAction;
 
@@ -30,11 +32,30 @@ public static function table(Table $table): Table
 }
 ```
 
+### Header Action (for all records)
+
+```php
+use ShaydR\FilamentSmartExport\Actions\SmartExportHeaderAction;
+
+public static function table(Table $table): Table
+{
+    return $table
+        ->headerActions([
+            SmartExportHeaderAction::make(),
+        ]);
+}
+```
+
+## Version Compatibility
+
+- **Filament v4**: Use version `^2.0` (main branch)
+- **Filament v3**: Use version `^1.0` (filament-v3 branch)
+
 ## Requirements
 
 - PHP 8.1+
-- Laravel 10+ / 11+
-- Filament 3.0+
+- Laravel 11+ / 12+
+- Filament 4.0+
 
 ## License
 
