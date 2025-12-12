@@ -2,7 +2,7 @@
 
 namespace ShaydR\FilamentSmartExport\Actions;
 
-use Filament\Actions\Action;
+use Filament\Tables\Actions\Action;
 use ShaydR\FilamentSmartExport\Actions\Concerns\CanDownloadDirect;
 use ShaydR\FilamentSmartExport\Actions\Concerns\CanFormatStates;
 use ShaydR\FilamentSmartExport\Actions\Concerns\CanHaveExtraColumns;

@@ -2,7 +2,7 @@
 
 namespace ShaydR\FilamentSmartExport\Actions;
 
-use Filament\Actions\BulkAction;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
