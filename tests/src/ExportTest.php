@@ -1,10 +1,10 @@
 <?php
 
-namespace Shayd\FilamentSmartExport\Tests;
+namespace ShaydR\FilamentSmartExport\Tests;
 
-use Shayd\FilamentSmartExport\Actions\SmartExportBulkAction;
-use Shayd\FilamentSmartExport\Actions\SmartExportHeaderAction;
-use Shayd\FilamentSmartExport\Tests\TestCase;
+use ShaydR\FilamentSmartExport\Actions\SmartExportBulkAction;
+use ShaydR\FilamentSmartExport\Actions\SmartExportHeaderAction;
+use ShaydR\FilamentSmartExport\Tests\TestCase;
 
 class ExportTest extends TestCase
 {

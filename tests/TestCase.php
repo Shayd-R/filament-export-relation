@@ -1,9 +1,9 @@
 <?php
 
-namespace Shayd\FilamentSmartExport\Tests;
+namespace ShaydR\FilamentSmartExport\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use Shayd\FilamentSmartExport\FilamentSmartExportServiceProvider;
+use ShaydR\FilamentSmartExport\FilamentSmartExportServiceProvider;
 
 class TestCase extends Orchestra
 {

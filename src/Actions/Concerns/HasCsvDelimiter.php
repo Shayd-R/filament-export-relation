@@ -1,6 +1,6 @@
 <?php
 
-namespace Shayd\FilamentSmartExport\Actions\Concerns;
+namespace ShaydR\FilamentSmartExport\Actions\Concerns;
 
 trait HasCsvDelimiter
 {

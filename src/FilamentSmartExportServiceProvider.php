@@ -1,6 +1,6 @@
 <?php
 
-namespace Shayd\FilamentSmartExport;
+namespace ShaydR\FilamentSmartExport;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;

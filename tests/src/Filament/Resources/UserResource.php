@@ -1,13 +1,13 @@
 <?php
 
-namespace Shayd\FilamentSmartExport\Tests\Filament\Resources;
+namespace ShaydR\FilamentSmartExport\Tests\Filament\Resources;
 
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Shayd\FilamentSmartExport\Actions\SmartExportBulkAction;
-use Shayd\FilamentSmartExport\Actions\SmartExportHeaderAction;
-use Shayd\FilamentSmartExport\Tests\Models\User;
+use ShaydR\FilamentSmartExport\Actions\SmartExportBulkAction;
+use ShaydR\FilamentSmartExport\Actions\SmartExportHeaderAction;
+use ShaydR\FilamentSmartExport\Tests\Models\User;
 
 class UserResource extends Resource
 {

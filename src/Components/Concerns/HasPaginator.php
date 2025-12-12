@@ -1,6 +1,6 @@
 <?php
 
-namespace Shayd\FilamentSmartExport\Components\Concerns;
+namespace ShaydR\FilamentSmartExport\Components\Concerns;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 

@@ -1,5 +1,5 @@
 {
-    "name": "shayd/filament-smart-export",
+    "name": "shayd-r/filament-smart-export",
     "description": "Smart automatic export action for Filament that discovers models and relationships automatically",
     "keywords": [
         "filament",
@@ -14,8 +14,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Shayd",
-            "email": "your-email@example.com"
+            "name": "Shayd-R",
+            "email": "shayd@example.com"
         }
     ],
     "require": {
@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Shayd\\FilamentSmartExport\\": "src/"
+            "ShaydR\\FilamentSmartExport\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Shayd\\FilamentSmartExport\\Tests\\": "tests/"
+            "ShaydR\\FilamentSmartExport\\Tests\\": "tests/"
         }
     },
     "require-dev": {
@@ -56,7 +56,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Shayd\\FilamentSmartExport\\FilamentSmartExportServiceProvider"
+                "ShaydR\\FilamentSmartExport\\FilamentSmartExportServiceProvider"
             ]
         }
     },
