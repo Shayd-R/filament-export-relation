@@ -485,14 +485,14 @@ class SmartExportBulkAction extends BulkAction
                     }
                 }
                 
-                $relationComponents[] = Fieldset::make("🔗 {$relationData['name']} (" . __('filament-smart-export::smart-export.multiple') . ")")
+                $relationComponents[] = Section::make("🔗 {$relationData['name']} (" . __('filament-smart-export::smart-export.multiple') . ")")
                     ->schema([
                         Grid::make(2)->schema($relationFields)
                     ])
                     ->collapsible();
             }
             
-            $schemas[] = Fieldset::make(__('filament-smart-export::smart-export.show_multiple_relationships'))
+            $schemas[] = Section::make(__('filament-smart-export::smart-export.show_multiple_relationships'))
                 ->schema($relationComponents)
                 ->collapsible()
                 ->collapsed();
