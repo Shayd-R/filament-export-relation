@@ -177,6 +177,55 @@ class SmartExportBulkAction extends BulkAction
                     $relatedInstance = new $relatedModel;
                     $relatedTable = $relatedInstance->getTable();
                     $this->modelColumns[$relatedModel] = Schema::getColumnListing($relatedTable);
+                    
+                    // Also discover relations within HasMany relationships
+                    if ($this->discoveredRelations[$method->name]['isMultiple']) {
+                        $this->discoverNestedRelations($relatedInstance, $method->name);
+                    }
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+    }
+
+    /**
+     * Discovers nested relationships (BelongsTo) within a HasMany relation
+     */
+    protected function discoverNestedRelations(Model $model, string $parentRelation): void
+    {
+        $reflectionClass = new \ReflectionClass($model);
+        
+        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->class !== get_class($model) || 
+                $method->getNumberOfParameters() > 0 ||
+                Str::startsWith($method->name, '__')) {
+                continue;
+            }
+
+            try {
+                $return = $method->invoke($model);
+                
+                if ($return instanceof Relation) {
+                    $relationType = class_basename(get_class($return));
+                    
+                    // Only care about BelongsTo relations within HasMany
+                    if ($relationType === 'BelongsTo') {
+                        $relatedModel = get_class($return->getRelated());
+                        $nestedRelationKey = "{$parentRelation}.{$method->name}";
+                        
+                        $this->discoveredRelations[$nestedRelationKey] = [
+                            'name' => $method->name,
+                            'type' => $relationType,
+                            'model' => $relatedModel,
+                            'isMultiple' => false,
+                            'parent' => $parentRelation,
+                        ];
+
+                        $relatedInstance = new $relatedModel;
+                        $relatedTable = $relatedInstance->getTable();
+                        $this->modelColumns[$relatedModel] = Schema::getColumnListing($relatedTable);
+                    }
                 }
             } catch (\Throwable $e) {
                 continue;
@@ -325,6 +374,11 @@ class SmartExportBulkAction extends BulkAction
             ->live();
 
         foreach ($this->discoveredRelations as $relationName => $relationData) {
+            // Skip nested relations, they'll be handled separately
+            if (isset($relationData['parent'])) {
+                continue;
+            }
+            
             $relatedModelName = class_basename($relationData['model']);
             $relatedColumns = [];
             
@@ -354,6 +408,173 @@ class SmartExportBulkAction extends BulkAction
         }
 
         return $schemas;
+    }
+    
+    /**
+     * Generates enhanced column structure with BelongsTo support
+     */
+    protected function generateEnhancedColumnStructure(): array
+    {
+        $mainModel = new $this->modelClass;
+        $structure = [
+            'model_name' => class_basename($this->modelClass),
+            'columns' => [],
+            'relations' => [],
+        ];
+
+        // Get BelongsTo relations for main model
+        $belongsToRelations = $this->getBelongsToRelations($mainModel);
+
+        // Process main model columns
+        foreach ($this->modelColumns[$this->modelClass] as $column) {
+            $isBelongsTo = false;
+            $belongsToData = null;
+
+            // Check if this column is a foreign key
+            foreach ($belongsToRelations as $relationName => $relationInfo) {
+                if (Str::endsWith($column, '_id') || $column === $relationInfo['foreignKey'] ?? null) {
+                    $possibleRelation = Str::before($column, '_id');
+                    if ($relationName === $possibleRelation || $relationName === Str::camel($possibleRelation)) {
+                        $isBelongsTo = true;
+                        $belongsToData = $relationInfo;
+                        break;
+                    }
+                }
+            }
+
+            $emoji = $this->getFieldEmoji($column);
+            $label = $this->getReadableColumnName($column);
+
+            if ($isBelongsTo && $belongsToData) {
+                // This is a BelongsTo field - create select options
+                $options = [];
+                if (isset($this->modelColumns[$belongsToData['model']])) {
+                    foreach ($this->modelColumns[$belongsToData['model']] as $relatedColumn) {
+                        $options[$relatedColumn] = $this->getReadableColumnName($relatedColumn);
+                    }
+                }
+
+                $structure['columns'][$column] = [
+                    'type' => 'belongs_to',
+                    'label' => $label,
+                    'emoji' => $emoji,
+                    'relation' => $belongsToData['name'],
+                    'options' => $options,
+                ];
+            } else {
+                // Simple field
+                $structure['columns'][$column] = [
+                    'type' => 'simple',
+                    'label' => $label,
+                    'emoji' => $emoji,
+                ];
+            }
+        }
+
+        // Process HasMany relations
+        foreach ($this->discoveredRelations as $relationName => $relationData) {
+            if (!$relationData['isMultiple'] || isset($relationData['parent'])) {
+                continue;
+            }
+
+            $relatedModel = new $relationData['model'];
+            $nestedBelongsTo = $this->getBelongsToRelations($relatedModel);
+
+            $relationStructure = [
+                'name' => class_basename($relationData['model']),
+                'key' => $relationName,
+                'columns' => [],
+            ];
+
+            if (isset($this->modelColumns[$relationData['model']])) {
+                foreach ($this->modelColumns[$relationData['model']] as $column) {
+                    $isBelongsTo = false;
+                    $belongsToData = null;
+
+                    // Check if this column is a foreign key within the HasMany relation
+                    foreach ($nestedBelongsTo as $nestedRelName => $nestedRelInfo) {
+                        if (Str::endsWith($column, '_id')) {
+                            $possibleRelation = Str::before($column, '_id');
+                            if ($nestedRelName === $possibleRelation || $nestedRelName === Str::camel($possibleRelation)) {
+                                $isBelongsTo = true;
+                                $belongsToData = $nestedRelInfo;
+                                break;
+                            }
+                        }
+                    }
+
+                    $emoji = $this->getFieldEmoji($column);
+                    $label = $this->getReadableColumnName($column);
+
+                    if ($isBelongsTo && $belongsToData) {
+                        $options = [];
+                        if (isset($this->modelColumns[$belongsToData['model']])) {
+                            foreach ($this->modelColumns[$belongsToData['model']] as $relatedColumn) {
+                                $options[$relatedColumn] = $this->getReadableColumnName($relatedColumn);
+                            }
+                        }
+
+                        $relationStructure['columns'][$column] = [
+                            'type' => 'belongs_to',
+                            'label' => $label,
+                            'emoji' => $emoji,
+                            'relation' => $belongsToData['name'],
+                            'options' => $options,
+                        ];
+                    } else {
+                        $relationStructure['columns'][$column] = [
+                            'type' => 'simple',
+                            'label' => $label,
+                            'emoji' => $emoji,
+                        ];
+                    }
+                }
+            }
+
+            $structure['relations'][$relationName] = $relationStructure;
+        }
+
+        return $structure;
+    }
+
+    /**
+     * Gets all BelongsTo relations for a model
+     */
+    protected function getBelongsToRelations(Model $model): array
+    {
+        $belongsToRelations = [];
+        $reflectionClass = new \ReflectionClass($model);
+        
+        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->class !== get_class($model) || 
+                $method->getNumberOfParameters() > 0 ||
+                Str::startsWith($method->name, '__')) {
+                continue;
+            }
+
+            try {
+                $return = $method->invoke($model);
+                
+                if ($return instanceof Relation) {
+                    $relationType = class_basename(get_class($return));
+                    
+                    if ($relationType === 'BelongsTo') {
+                        $relatedModel = get_class($return->getRelated());
+                        
+                        $belongsToRelations[$method->name] = [
+                            'name' => $method->name,
+                            'type' => $relationType,
+                            'model' => $relatedModel,
+                            'foreignKey' => $return->getForeignKeyName(),
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        return $belongsToRelations;
     }
 
     /**

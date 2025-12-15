@@ -32,4 +32,11 @@ return [
     'rows_exported' => 'rows were exported',
     'yes' => 'Yes',
     'no' => 'No',
+    'search_fields' => 'Search fields...',
+    'select_all' => 'Select all',
+    'show_multiple_relationships' => 'Show Multiple Relationships (HasMany)',
+    'multiple_relation' => 'Multiple Relation',
+    'relations' => 'relations',
+    'belongs_to_field' => 'Relation Field',
+    'choose_field' => 'Choose field',
 ];

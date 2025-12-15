@@ -32,4 +32,11 @@ return [
     'rows_exported' => 'filas fueron exportadas',
     'yes' => 'Sí',
     'no' => 'No',
+    'search_fields' => 'Buscar campos...',
+    'select_all' => 'Seleccionar todos',
+    'show_multiple_relationships' => 'Mostrar Relaciones Múltiples (HasMany)',
+    'multiple_relation' => 'Relación Múltiple',
+    'relations' => 'relaciones',
+    'belongs_to_field' => 'Campo de Relación',
+    'choose_field' => 'Elegir campo',
 ];

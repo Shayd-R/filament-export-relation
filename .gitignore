@@ -69,10 +69,18 @@ temp/
 # Package files
 *.phar
 
-# Documentation temporal
+# Documentation temporal (generada durante desarrollo)
 ANALISIS_ESTRUCTURA.md
 ESTRUCTURA_COMPLETA.md
 TESTING.md
+ENHANCED_COLUMN_SELECTOR_DESIGN.md
+IMPLEMENTATION_GUIDE.md
+QUICK_TESTING_GUIDE.md
+TESTING_GUIDE.md
+
+# Debug files
+debug_output.html
+*.html.debug
 
 # Reference folders (no incluir en el repo)
 filament-export-main/

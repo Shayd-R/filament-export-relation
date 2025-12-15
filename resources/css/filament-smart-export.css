@@ -5,49 +5,227 @@
     max-width: 90vw;
 }
 
-/* Preview Table */
-.smart-export-preview-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    overflow-x: auto;
-    display: block;
+/* Enhanced Column Selector Styles */
+.enhanced-column-selector {
+    font-family: inherit;
 }
 
-.smart-export-preview-table thead {
-    background-color: #f3f4f6;
+/* Main Model Card Styles */
+.column-selector-card {
+    transition: all 0.2s ease;
 }
 
-.smart-export-preview-table th {
-    padding: 0.75rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
+.column-selector-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.smart-export-preview-table td {
-    padding: 0.75rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-    border-bottom: 1px solid #e5e7eb;
+/* Badge Styles */
+.badge-main-model {
+    background-color: #dcfce7;
+    color: #166534;
 }
 
-.smart-export-preview-table tbody tr:hover {
+.dark .badge-main-model {
+    background-color: rgba(22, 101, 52, 0.3);
+    color: #86efac;
+}
+
+.badge-hasmany {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.dark .badge-hasmany {
+    background-color: rgba(146, 64, 14, 0.3);
+    color: #fde68a;
+}
+
+/* Search Input Styles */
+.column-search-input {
+    transition: all 0.15s ease;
+}
+
+.column-search-input:focus {
+    transform: scale(1.01);
+}
+
+/* BelongsTo Select Styles - Gray for Main Model */
+.belongs-to-select {
     background-color: #f9fafb;
+    border-color: #d1d5db;
+    transition: all 0.15s ease;
 }
 
-/* Column Selection Groups */
-.smart-export-column-group {
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border: 1px solid #e5e7eb;
+.dark .belongs-to-select {
+    background-color: #1f2937;
+    border-color: #4b5563;
+}
+
+.belongs-to-select:hover {
+    border-color: #9ca3af;
+}
+
+.dark .belongs-to-select:hover {
+    border-color: #6b7280;
+}
+
+.belongs-to-select:focus {
+    border-color: #6366f1;
+    ring-color: #6366f1;
+}
+
+/* BelongsTo within HasMany - Purple Background */
+.belongs-to-hasmany-container {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    border: 1px solid #e9d5ff;
     border-radius: 0.5rem;
-    background-color: #ffffff;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
 }
 
-.smart-export-column-group-title {
+.dark .belongs-to-hasmany-container {
+    background: linear-gradient(135deg, rgba(88, 28, 135, 0.15) 0%, rgba(107, 33, 168, 0.2) 100%);
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.belongs-to-hasmany-container:hover {
+    box-shadow: 0 0 0 2px #e9d5ff;
+}
+
+.dark .belongs-to-hasmany-container:hover {
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.3);
+}
+
+.belongs-to-hasmany-select {
+    background-color: #f5f3ff;
+    border-color: #c4b5fd;
+    transition: all 0.15s ease;
+}
+
+.dark .belongs-to-hasmany-select {
+    background-color: rgba(88, 28, 135, 0.3);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+
+.belongs-to-hasmany-select:hover {
+    border-color: #a78bfa;
+}
+
+.dark .belongs-to-hasmany-select:hover {
+    border-color: #a78bfa;
+}
+
+.belongs-to-hasmany-select:focus {
+    border-color: #8b5cf6;
+    ring-color: #8b5cf6;
+}
+
+/* Checkbox Styles */
+.column-checkbox {
+    transition: all 0.15s ease;
+}
+
+.column-checkbox:hover {
+    transform: scale(1.1);
+}
+
+/* HasMany Collapsible Section */
+.hasmany-toggle-button {
+    transition: all 0.2s ease;
+}
+
+.hasmany-toggle-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Chevron Rotation Animation */
+.chevron-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chevron-icon.rotated {
+    transform: rotate(90deg);
+}
+
+/* Select All Link */
+.select-all-link {
+    transition: all 0.15s ease;
+}
+
+.select-all-link:hover {
+    text-decoration: underline;
+    transform: translateX(2px);
+}
+
+/* Grid Animation */
+.column-grid-item {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.column-grid-item.hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    display: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .enhanced-column-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dark Mode Enhancements */
+.dark .column-selector-card {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.dark .column-selector-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar Styling */
+.column-grid-container {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.column-grid-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.column-grid-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.column-grid-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.column-grid-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark .column-grid-container {
+    scrollbar-color: #4b5563 #1f2937;
+}
+
+.dark .column-grid-container::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+.dark .column-grid-container::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+.dark .column-grid-container::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
     font-weight: 600;
     font-size: 0.875rem;
     color: #111827;
