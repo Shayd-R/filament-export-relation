@@ -419,10 +419,9 @@ class SmartExportBulkAction extends BulkAction
      */
     protected function generateEnhancedColumnDropdowns(): array
     {
-        $schemas = [];
         $structure = $this->generateEnhancedColumnStructure();
         
-        // Main Model Section with two-column grid
+        // Main Model Section
         $mainComponents = [];
         
         // Add main model fields
@@ -433,28 +432,27 @@ class SmartExportBulkAction extends BulkAction
                     ->label("{$columnData['emoji']} {$columnData['label']}")
                     ->live();
             } else {
-                // BelongsTo field with select
-                $mainComponents[] = Grid::make(1)
-                    ->schema([
-                        Checkbox::make("columns_main.{$columnKey}.enabled")
-                            ->label("{$columnData['emoji']} {$columnData['label']}")
-                            ->live(),
-                        Select::make("columns_main.{$columnKey}.field")
-                            ->label(__('filament-smart-export::smart-export.choose_field'))
-                            ->options($columnData['options'])
-                            ->default(array_key_first($columnData['options']))
-                            ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
-                            ->live(),
-                    ]);
+                // BelongsTo field with checkbox and select inline
+                $mainComponents[] = Checkbox::make("columns_main.{$columnKey}.enabled")
+                    ->label("{$columnData['emoji']} {$columnData['label']} (Nested)")
+                    ->live();
+                $mainComponents[] = Select::make("columns_main.{$columnKey}.field")
+                    ->label(false)
+                    ->placeholder(__('filament-smart-export::smart-export.choose_field'))
+                    ->options($columnData['options'])
+                    ->default(array_key_first($columnData['options']))
+                    ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
+                    ->live();
             }
         }
         
-        $schemas[] = Fieldset::make("📦 {$structure['model_name']} (" . __('filament-smart-export::smart-export.main_model') . ")")
+        $mainSection = Fieldset::make("📦 {$structure['model_name']} (" . __('filament-smart-export::smart-export.main_model') . ")")
             ->schema([
                 Grid::make(2)->schema($mainComponents)
             ]);
         
-        // HasMany Relations Section (collapsible)
+        // HasMany Relations Section
+        $relationSection = null;
         if (!empty($structure['relations'])) {
             $relationComponents = [];
             
@@ -467,21 +465,19 @@ class SmartExportBulkAction extends BulkAction
                             ->label("{$colData['emoji']} {$colData['label']}")
                             ->live();
                     } else {
-                        // BelongsTo within HasMany - with purple background hint
-                        $relationFields[] = Grid::make(1)
-                            ->schema([
-                                Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
-                                    ->label("{$colData['emoji']} {$colData['label']} (Nested)")
-                                    ->live()
-                                    ->extraAttributes(['class' => 'text-purple-600']),
-                                Select::make("columns_relations.{$relationKey}.{$colKey}.field")
-                                    ->label(__('filament-smart-export::smart-export.choose_field'))
-                                    ->options($colData['options'])
-                                    ->default(array_key_first($colData['options']))
-                                    ->visible(fn (Get $get) => $get("columns_relations.{$relationKey}.{$colKey}.enabled"))
-                                    ->live()
-                                    ->extraAttributes(['class' => 'bg-purple-50']),
-                            ]);
+                        // BelongsTo within HasMany - inline with purple styling
+                        $relationFields[] = Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
+                            ->label("{$colData['emoji']} {$colData['label']} (Nested)")
+                            ->live()
+                            ->extraAttributes(['class' => 'text-purple-600']);
+                        $relationFields[] = Select::make("columns_relations.{$relationKey}.{$colKey}.field")
+                            ->label(false)
+                            ->placeholder(__('filament-smart-export::smart-export.choose_field'))
+                            ->options($colData['options'])
+                            ->default(array_key_first($colData['options']))
+                            ->visible(fn (Get $get) => $get("columns_relations.{$relationKey}.{$colKey}.enabled"))
+                            ->live()
+                            ->extraAttributes(['class' => 'bg-purple-50 dark:bg-purple-900/20']);
                     }
                 }
                 
@@ -492,13 +488,24 @@ class SmartExportBulkAction extends BulkAction
                     ->collapsible();
             }
             
-            $schemas[] = Section::make(__('filament-smart-export::smart-export.show_multiple_relationships'))
+            $relationSection = Section::make(__('filament-smart-export::smart-export.show_multiple_relationships'))
                 ->schema($relationComponents)
                 ->collapsible()
                 ->collapsed();
         }
         
-        return $schemas;
+        // Two-column layout: Main Model | Relations
+        if ($relationSection) {
+            return [
+                Grid::make(2)
+                    ->schema([
+                        $mainSection,
+                        $relationSection,
+                    ])
+            ];
+        }
+        
+        return [$mainSection];
     }
     
     /**
