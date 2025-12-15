@@ -448,7 +448,7 @@ class SmartExportBulkAction extends BulkAction
         
         $mainSection = Fieldset::make("📦 {$structure['model_name']} (" . __('filament-smart-export::smart-export.main_model') . ")")
             ->schema([
-                Grid::make(2)->schema($mainComponents)
+                Grid::make(1)->schema($mainComponents)
             ]);
         
         // HasMany Relations Section
@@ -483,7 +483,7 @@ class SmartExportBulkAction extends BulkAction
                 
                 $relationComponents[] = Section::make("🔗 {$relationData['name']} (" . __('filament-smart-export::smart-export.multiple') . ")")
                     ->schema([
-                        Grid::make(2)->schema($relationFields)
+                        Grid::make(1)->schema($relationFields)
                     ])
                     ->collapsible();
             }
