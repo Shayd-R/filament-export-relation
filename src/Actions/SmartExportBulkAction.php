@@ -13,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Group;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -433,8 +434,7 @@ class SmartExportBulkAction extends BulkAction
                     ->live();
             } else {
                 // BelongsTo field with checkbox and select inline (same row)
-                $mainComponents[] = Grid::make(2)
-                    ->schema([
+                $mainComponents[] = Group::make([
                         Checkbox::make("columns_main.{$columnKey}.enabled")
                             ->label("{$columnData['emoji']} {$columnData['label']} (Nested)")
                             ->live(),
@@ -445,7 +445,8 @@ class SmartExportBulkAction extends BulkAction
                             ->default(array_key_first($columnData['options']))
                             ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
                             ->live(),
-                    ]);
+                    ])
+                    ->columns(2);
             }
         }
         
@@ -467,8 +468,7 @@ class SmartExportBulkAction extends BulkAction
                             ->live();
                     } else {
                         // BelongsTo within HasMany - inline with purple styling (same row)
-                        $relationFields[] = Grid::make(2)
-                            ->schema([
+                        $relationFields[] = Group::make([
                                 Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
                                     ->label("{$colData['emoji']} {$colData['label']} (Nested)")
                                     ->live()
@@ -481,7 +481,8 @@ class SmartExportBulkAction extends BulkAction
                                     ->visible(fn (Get $get) => $get("columns_relations.{$relationKey}.{$colKey}.enabled"))
                                     ->live()
                                     ->extraAttributes(['class' => 'bg-purple-50 dark:bg-purple-900/20']),
-                            ]);
+                            ])
+                            ->columns(2);
                     }
                 }
                 
