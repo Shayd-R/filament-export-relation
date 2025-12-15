@@ -10,7 +10,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\ViewField;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -274,8 +275,8 @@ class SmartExportBulkAction extends BulkAction
             ];
         }
 
-        // Generate enhanced column structure
-        $enhancedStructure = $this->generateEnhancedColumnStructure();
+        // Generate enhanced column dropdowns with BelongsTo support
+        $columnSchemas = $this->generateEnhancedColumnDropdowns();
 
         return [
             Section::make(__('filament-smart-export::smart-export.configuration'))
@@ -303,15 +304,7 @@ class SmartExportBulkAction extends BulkAction
             
             Section::make(__('filament-smart-export::smart-export.columns_section'))
                 ->description(__('filament-smart-export::smart-export.columns_description'))
-                ->schema([
-                    ViewField::make('column_selector')
-                        ->view('filament-smart-export::components.enhanced-column-selector')
-                        ->viewData([
-                            'modelName' => $enhancedStructure['model_name'],
-                            'columns' => $enhancedStructure['columns'],
-                            'relations' => $enhancedStructure['relations'],
-                        ])
-                ])
+                ->schema($columnSchemas)
                 ->columnSpanFull()
                 ->collapsible(),
             
@@ -417,6 +410,93 @@ class SmartExportBulkAction extends BulkAction
                 ->hint(__('filament-smart-export::smart-export.relationship') . ": {$relationData['type']}");
         }
 
+        return $schemas;
+    }
+    
+    /**
+     * Generates enhanced column dropdowns with BelongsTo select support
+     */
+    protected function generateEnhancedColumnDropdowns(): array
+    {
+        $schemas = [];
+        $structure = $this->generateEnhancedColumnStructure();
+        
+        // Main Model Section with two-column grid
+        $mainComponents = [];
+        
+        // Add main model fields
+        foreach ($structure['columns'] as $columnKey => $columnData) {
+            if ($columnData['type'] === 'simple') {
+                // Simple checkbox
+                $mainComponents[] = \Filament\Forms\Components\Checkbox::make("columns_main.{$columnKey}")
+                    ->label("{$columnData['emoji']} {$columnData['label']}")
+                    ->live();
+            } else {
+                // BelongsTo field with select
+                $mainComponents[] = Grid::make(1)
+                    ->schema([
+                        \Filament\Forms\Components\Checkbox::make("columns_main.{$columnKey}.enabled")
+                            ->label("{$columnData['emoji']} {$columnData['label']}")
+                            ->live(),
+                        Select::make("columns_main.{$columnKey}.field")
+                            ->label(__('filament-smart-export::smart-export.choose_field'))
+                            ->options($columnData['options'])
+                            ->default(array_key_first($columnData['options']))
+                            ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
+                            ->live(),
+                    ]);
+            }
+        }
+        
+        $schemas[] = Fieldset::make("📦 {$structure['model_name']} (" . __('filament-smart-export::smart-export.main_model') . ")")
+            ->schema([
+                Grid::make(2)->schema($mainComponents)
+            ]);
+        
+        // HasMany Relations Section (collapsible)
+        if (!empty($structure['relations'])) {
+            $relationComponents = [];
+            
+            foreach ($structure['relations'] as $relationKey => $relationData) {
+                $relationFields = [];
+                
+                foreach ($relationData['columns'] as $colKey => $colData) {
+                    if ($colData['type'] === 'simple') {
+                        $relationFields[] = \Filament\Forms\Components\Checkbox::make("columns_relations.{$relationKey}.{$colKey}")
+                            ->label("{$colData['emoji']} {$colData['label']}")
+                            ->live();
+                    } else {
+                        // BelongsTo within HasMany - with purple background hint
+                        $relationFields[] = Grid::make(1)
+                            ->schema([
+                                \Filament\Forms\Components\Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
+                                    ->label("{$colData['emoji']} {$colData['label']} (Nested)")
+                                    ->live()
+                                    ->extraAttributes(['class' => 'text-purple-600']),
+                                Select::make("columns_relations.{$relationKey}.{$colKey}.field")
+                                    ->label(__('filament-smart-export::smart-export.choose_field'))
+                                    ->options($colData['options'])
+                                    ->default(array_key_first($colData['options']))
+                                    ->visible(fn (Get $get) => $get("columns_relations.{$relationKey}.{$colKey}.enabled"))
+                                    ->live()
+                                    ->extraAttributes(['class' => 'bg-purple-50']),
+                            ]);
+                    }
+                }
+                
+                $relationComponents[] = Fieldset::make("🔗 {$relationData['name']} (" . __('filament-smart-export::smart-export.multiple') . ")")
+                    ->schema([
+                        Grid::make(2)->schema($relationFields)
+                    ])
+                    ->collapsible();
+            }
+            
+            $schemas[] = Fieldset::make(__('filament-smart-export::smart-export.show_multiple_relationships'))
+                ->schema($relationComponents)
+                ->collapsible()
+                ->collapsed();
+        }
+        
         return $schemas;
     }
     
@@ -594,12 +674,42 @@ class SmartExportBulkAction extends BulkAction
     {
         $allColumns = [];
 
+        // Collect main model columns
         $mainColumns = $get('columns_main') ?? [];
-        $allColumns = array_merge($allColumns, $mainColumns);
+        foreach ($mainColumns as $key => $value) {
+            if (is_bool($value) && $value === true) {
+                // Simple field
+                $allColumns[] = $key;
+            } elseif (is_array($value) && ($value['enabled'] ?? false)) {
+                // BelongsTo field
+                $field = $value['field'] ?? 'id';
+                // Need to find the relation name for this column
+                $structure = $this->generateEnhancedColumnStructure();
+                if (isset($structure['columns'][$key]) && $structure['columns'][$key]['type'] === 'belongs_to') {
+                    $relationName = $structure['columns'][$key]['relation'];
+                    $allColumns[] = "{$relationName}.{$field}";
+                }
+            }
+        }
 
-        foreach ($this->discoveredRelations as $relationName => $relationData) {
-            $relationColumns = $get("columns_{$relationName}") ?? [];
-            $allColumns = array_merge($allColumns, $relationColumns);
+        // Collect relations columns
+        $relationsColumns = $get('columns_relations') ?? [];
+        foreach ($relationsColumns as $relationKey => $columns) {
+            foreach ($columns as $columnKey => $value) {
+                if (is_bool($value) && $value === true) {
+                    // Simple field in relation
+                    $allColumns[] = "{$relationKey}.{$columnKey}";
+                } elseif (is_array($value) && ($value['enabled'] ?? false)) {
+                    // BelongsTo field in relation
+                    $field = $value['field'] ?? 'id';
+                    $structure = $this->generateEnhancedColumnStructure();
+                    if (isset($structure['relations'][$relationKey]['columns'][$columnKey]) && 
+                        $structure['relations'][$relationKey]['columns'][$columnKey]['type'] === 'belongs_to') {
+                        $nestedRelation = $structure['relations'][$relationKey]['columns'][$columnKey]['relation'];
+                        $allColumns[] = "{$relationKey}.{$nestedRelation}.{$field}";
+                    }
+                }
+            }
         }
 
         return $allColumns;
