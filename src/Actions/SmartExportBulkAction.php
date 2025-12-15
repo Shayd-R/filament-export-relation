@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -273,7 +274,8 @@ class SmartExportBulkAction extends BulkAction
             ];
         }
 
-        $columnSchemas = $this->generateColumnDropdowns();
+        // Generate enhanced column structure
+        $enhancedStructure = $this->generateEnhancedColumnStructure();
 
         return [
             Section::make(__('filament-smart-export::smart-export.configuration'))
@@ -301,8 +303,16 @@ class SmartExportBulkAction extends BulkAction
             
             Section::make(__('filament-smart-export::smart-export.columns_section'))
                 ->description(__('filament-smart-export::smart-export.columns_description'))
-                ->schema($columnSchemas)
-                ->columns(2)
+                ->schema([
+                    ViewField::make('column_selector')
+                        ->view('filament-smart-export::components.enhanced-column-selector')
+                        ->viewData([
+                            'modelName' => $enhancedStructure['model_name'],
+                            'columns' => $enhancedStructure['columns'],
+                            'relations' => $enhancedStructure['relations'],
+                        ])
+                ])
+                ->columnSpanFull()
                 ->collapsible(),
             
             Section::make(__('filament-smart-export::smart-export.preview'))
