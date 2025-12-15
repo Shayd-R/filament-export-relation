@@ -7,11 +7,12 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -428,14 +429,14 @@ class SmartExportBulkAction extends BulkAction
         foreach ($structure['columns'] as $columnKey => $columnData) {
             if ($columnData['type'] === 'simple') {
                 // Simple checkbox
-                $mainComponents[] = \Filament\Forms\Components\Checkbox::make("columns_main.{$columnKey}")
+                $mainComponents[] = Checkbox::make("columns_main.{$columnKey}")
                     ->label("{$columnData['emoji']} {$columnData['label']}")
                     ->live();
             } else {
                 // BelongsTo field with select
                 $mainComponents[] = Grid::make(1)
                     ->schema([
-                        \Filament\Forms\Components\Checkbox::make("columns_main.{$columnKey}.enabled")
+                        Checkbox::make("columns_main.{$columnKey}.enabled")
                             ->label("{$columnData['emoji']} {$columnData['label']}")
                             ->live(),
                         Select::make("columns_main.{$columnKey}.field")
@@ -462,14 +463,14 @@ class SmartExportBulkAction extends BulkAction
                 
                 foreach ($relationData['columns'] as $colKey => $colData) {
                     if ($colData['type'] === 'simple') {
-                        $relationFields[] = \Filament\Forms\Components\Checkbox::make("columns_relations.{$relationKey}.{$colKey}")
+                        $relationFields[] = Checkbox::make("columns_relations.{$relationKey}.{$colKey}")
                             ->label("{$colData['emoji']} {$colData['label']}")
                             ->live();
                     } else {
                         // BelongsTo within HasMany - with purple background hint
                         $relationFields[] = Grid::make(1)
                             ->schema([
-                                \Filament\Forms\Components\Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
+                                Checkbox::make("columns_relations.{$relationKey}.{$colKey}.enabled")
                                     ->label("{$colData['emoji']} {$colData['label']} (Nested)")
                                     ->live()
                                     ->extraAttributes(['class' => 'text-purple-600']),
