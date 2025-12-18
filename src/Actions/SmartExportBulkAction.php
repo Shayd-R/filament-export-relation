@@ -441,6 +441,7 @@ class SmartExportBulkAction extends BulkAction
                             ->live(),
                         Select::make("columns_main.{$columnKey}.field")
                             ->label(false)
+                            ->placeholder('')
                             ->options($columnData['options'])
                             ->default(array_key_first($columnData['options']))
                             ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
@@ -476,6 +477,7 @@ class SmartExportBulkAction extends BulkAction
                                     ->extraAttributes(['class' => 'text-purple-600']),
                                 Select::make("columns_relations.{$relationKey}.{$colKey}.field")
                                     ->label(false)
+                                    ->placeholder('')
                                     ->options($colData['options'])
                                     ->default(array_key_first($colData['options']))
                                     ->visible(fn (Get $get) => $get("columns_relations.{$relationKey}.{$colKey}.enabled"))
