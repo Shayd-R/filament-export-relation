@@ -440,7 +440,7 @@ class SmartExportBulkAction extends BulkAction
                             ->label("{$columnData['emoji']} {$columnData['label']} (Nested)")
                             ->live(),
                         Select::make("columns_main.{$columnKey}.field")
-                            ->label(false)
+                            ->hiddenLabel()
                             ->placeholder('')
                             ->options($columnData['options'])
                             ->default(array_key_first($columnData['options']))
@@ -476,7 +476,7 @@ class SmartExportBulkAction extends BulkAction
                                     ->live()
                                     ->extraAttributes(['class' => 'text-purple-600']),
                                 Select::make("columns_relations.{$relationKey}.{$colKey}.field")
-                                    ->label(false)
+                                    ->hiddenLabel()
                                     ->placeholder('')
                                     ->options($colData['options'])
                                     ->default(array_key_first($colData['options']))
