@@ -441,7 +441,6 @@ class SmartExportBulkAction extends BulkAction
                             ->live(),
                         Select::make("columns_main.{$columnKey}.field")
                             ->hiddenLabel()
-                            ->placeholder('')
                             ->options($columnData['options'])
                             ->default(array_key_first($columnData['options']))
                             ->visible(fn (Get $get) => $get("columns_main.{$columnKey}.enabled"))
